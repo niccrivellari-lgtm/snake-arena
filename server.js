@@ -11,8 +11,9 @@ const FOOD_COUNT = 12;
 const RESPAWN_MS = 3000;
 
 const ADMIN_CODE = '479572';
-const TOURNAMENT_LOBBY_MS = 5 * 60 * 1000;  // 5 min attesa
-const TOURNAMENT_DURATION_MS = 10 * 60 * 1000; // 10 min partita
+const TOURNAMENT_LOBBY_MS = 5 * 60 * 1000;   // 5 min attesa
+const TOURNAMENT_DURATION_MS = 10 * 60 * 1000; // 10 min (solo modalità lunghezza)
+// modalità survival: nessun timer, vince l'ultimo vivo
 
 // ── HTTP ──────────────────────────────────────────────────────
 const server = http.createServer((req, res) => {
@@ -145,7 +146,7 @@ wss.on('connection', ws => {
 
     if (msg.type === 'admin_start_tournament') {
       if (msg.code !== ADMIN_CODE) return;
-      if (!['kills','length'].includes(msg.mode)) return;
+      if (!['survival','length'].includes(msg.mode)) return;
       if (tournament.phase !== 'normal') return;
 
       startTournamentLobby(msg.mode);
@@ -202,7 +203,9 @@ function startTournamentLobby(mode) {
 function startTournamentActive() {
   if (tournament.phase !== 'lobby') return;
   tournament.phase = 'active';
-  tournament.gameEndsAt = Date.now() + TOURNAMENT_DURATION_MS;
+  // Solo la modalità lunghezza ha un timer di 10 min
+  // La modalità survival non ha timer: finisce quando rimane 1 solo vivo
+  tournament.gameEndsAt = tournament.mode === 'length' ? Date.now() + TOURNAMENT_DURATION_MS : 0;
 
   // Spawn all connected players
   for (const p of Object.values(players)) {
@@ -223,24 +226,36 @@ function startTournamentActive() {
 
   broadcast({ type: 'tournament_start', mode: tournament.mode, endsAt: tournament.gameEndsAt });
 
-  // Schedule tournament end
-  setTimeout(() => {
-    endTournament();
-  }, TOURNAMENT_DURATION_MS);
+  // Solo la modalità lunghezza schedula la fine automatica
+  if (tournament.mode === 'length') {
+    setTimeout(() => {
+      endTournament();
+    }, TOURNAMENT_DURATION_MS);
+  }
 }
 
 function endTournament() {
   if (tournament.phase !== 'active') return;
   tournament.phase = 'ended';
 
-  // Find winner
+  // Trova il vincitore in base alla modalità
   let best = null;
-  let bestVal = -1;
-  for (const p of Object.values(players)) {
-    let val = tournament.mode === 'kills' ? p.tournamentKills : p.tournamentMaxLength;
-    if (val > bestVal) {
-      bestVal = val;
-      best = p;
+  if (tournament.mode === 'survival') {
+    // Vince l'ultimo rimasto vivo
+    const alivePlayers = Object.values(players).filter(p => p.alive);
+    best = alivePlayers.length === 1 ? alivePlayers[0] : null;
+    // Fallback: se tutti morti in contemporanea, chi ha più kills
+    if (!best) {
+      let bestKills = -1;
+      for (const p of Object.values(players)) {
+        if (p.tournamentKills > bestKills) { bestKills = p.tournamentKills; best = p; }
+      }
+    }
+  } else {
+    // Lunghezza: vince chi ha raggiunto la lunghezza massima
+    let bestVal = -1;
+    for (const p of Object.values(players)) {
+      if (p.tournamentMaxLength > bestVal) { bestVal = p.tournamentMaxLength; best = p; }
     }
   }
 
@@ -328,11 +343,11 @@ setInterval(() => {
     return;
   }
 
-  // Normal respawn (not during lobby)
+  // Respawn
   for (const p of Object.values(players)) {
     if (!p.alive && now >= p.respawnAt) {
-      // During active tournament, no respawn — stay dead
-      if (tournament.phase === 'active') continue;
+      // Survival: no respawn durante il torneo
+      if (tournament.phase === 'active' && tournament.mode === 'survival') continue;
       const head = randCell(pos => buildOccupied().has(`${pos.x},${pos.y}`));
       p.body = [head, { x: head.x - 1, y: head.y }, { x: head.x - 2, y: head.y }];
       p.dir = { x: 1, y: 0 };
@@ -415,6 +430,30 @@ setInterval(() => {
   }
 
   spawnFood();
+
+  // Survival: controlla se rimane solo 1 giocatore vivo → fine torneo
+  if (tournament.phase === 'active' && tournament.mode === 'survival') {
+    const alivePlayers = Object.values(players).filter(p => p.alive);
+    const totalPlayers = Object.values(players).length;
+    if (totalPlayers > 1 && alivePlayers.length <= 1) {
+      // Broadcast stato finale prima di chiudere
+      broadcast({
+        type: 'state',
+        players: Object.values(players).map(p => ({
+          id: p.id, name: p.name, color: p.color,
+          body: p.body, alive: p.alive,
+          kills: p.kills, deaths: p.deaths,
+          score: p.score, respawnAt: p.respawnAt,
+          dir: p.dir, tournamentKills: p.tournamentKills,
+          tournamentMaxLength: p.tournamentMaxLength
+        })),
+        food,
+        tournament: getTournamentInfo()
+      });
+      endTournament();
+      return;
+    }
+  }
 
   broadcast({
     type: 'state',
