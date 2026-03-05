@@ -27,7 +27,6 @@ body{
   display:flex;align-items:center;justify-content:center;
 }
 
-/* ── SCANLINES overlay ── */
 body::after{
   content:'';
   position:fixed;inset:0;
@@ -66,7 +65,6 @@ body::after{
   min-width:300px;
   position:relative;
 }
-/* pixel corners */
 .box::before,.box::after{
   content:'';position:absolute;width:12px;height:12px;
   border-color:var(--g);border-style:solid;
@@ -89,10 +87,19 @@ body::after{
   font-family:'Press Start 2P',monospace;font-size:0.75rem;
   letter-spacing:0.1em;padding:14px;cursor:pointer;
   transition:transform 0.1s,box-shadow 0.2s;text-transform:uppercase;
-  image-rendering:pixelated;
 }
 #joinBtn:hover{box-shadow:0 0 24px rgba(0,255,136,0.5);transform:translateY(-2px);}
 #joinBtn:active{transform:translateY(1px);}
+
+/* Tournament button in lobby */
+#tournamentBtn{
+  width:100%;background:transparent;color:var(--y);
+  border:1px solid rgba(255,221,0,0.4);
+  font-family:'Press Start 2P',monospace;font-size:0.6rem;
+  letter-spacing:0.08em;padding:10px;cursor:pointer;
+  transition:all 0.2s;text-transform:uppercase;margin-top:-6px;
+}
+#tournamentBtn:hover{background:rgba(255,221,0,0.08);border-color:var(--y);box-shadow:0 0 18px rgba(255,221,0,0.3);}
 
 .ctrl{
   display:grid;grid-template-columns:1fr 1fr;gap:6px 20px;
@@ -100,12 +107,127 @@ body::after{
 }
 .ctrl span{color:var(--g);}
 
+/* ── TOURNAMENT MODAL ── */
+#tournamentModal{
+  display:none;
+  position:fixed;inset:0;z-index:2000;
+  background:rgba(7,13,10,0.92);
+  align-items:center;justify-content:center;
+  backdrop-filter:blur(6px);
+}
+#tournamentModal.open{display:flex;}
+
+.tmodal-box{
+  background:#070d0a;
+  border:1px solid var(--y);
+  padding:40px;
+  display:flex;flex-direction:column;gap:20px;align-items:center;
+  min-width:340px;max-width:420px;width:90%;
+  position:relative;
+}
+.tmodal-box::before,.tmodal-box::after{
+  content:'';position:absolute;width:14px;height:14px;
+  border-color:var(--y);border-style:solid;
+}
+.tmodal-box::before{top:-1px;left:-1px;border-width:2px 0 0 2px;}
+.tmodal-box::after{bottom:-1px;right:-1px;border-width:0 2px 2px 0;}
+
+.tmodal-box h2{
+  font-family:'Press Start 2P',monospace;font-size:0.9rem;
+  color:var(--y);text-shadow:0 0 20px rgba(255,221,0,0.5);
+  letter-spacing:0.1em;text-align:center;
+}
+.tmodal-box p{
+  font-size:0.62rem;color:rgba(0,255,136,0.5);letter-spacing:0.12em;
+  text-align:center;line-height:1.8;
+}
+.tinput{
+  width:100%;background:rgba(255,221,0,0.05);
+  border:1px solid rgba(255,221,0,0.3);
+  color:var(--y);font-family:'Press Start 2P',monospace;font-size:1.1rem;
+  padding:12px;outline:none;text-align:center;letter-spacing:0.4em;
+}
+.tinput:focus{border-color:var(--y);box-shadow:0 0 14px rgba(255,221,0,0.2);}
+
+.tmodal-btns{display:flex;gap:12px;width:100%;}
+.tbtn{
+  flex:1;padding:12px;border:none;cursor:pointer;
+  font-family:'Press Start 2P',monospace;font-size:0.6rem;
+  letter-spacing:0.1em;text-transform:uppercase;
+  transition:all 0.2s;
+}
+.tbtn-cancel{background:transparent;color:rgba(0,255,136,0.4);border:1px solid rgba(0,255,136,0.15);}
+.tbtn-cancel:hover{border-color:var(--g);color:var(--g);}
+.tbtn-confirm{background:var(--y);color:#000;}
+.tbtn-confirm:hover{box-shadow:0 0 20px rgba(255,221,0,0.4);transform:translateY(-1px);}
+.tbtn-confirm:active{transform:translateY(0);}
+
+/* Mode selection */
+#modeSelect{display:none;flex-direction:column;gap:14px;width:100%;}
+.mode-btn{
+  width:100%;padding:16px;border:1px solid var(--border);
+  background:var(--panel);color:var(--g);
+  font-family:'Press Start 2P',monospace;font-size:0.62rem;
+  letter-spacing:0.08em;text-transform:uppercase;
+  cursor:pointer;transition:all 0.2s;text-align:left;
+}
+.mode-btn:hover{border-color:var(--g);background:rgba(0,255,136,0.1);box-shadow:0 0 18px rgba(0,255,136,0.2);}
+.mode-btn .mode-title{color:var(--y);display:block;margin-bottom:6px;font-size:0.7rem;}
+.mode-btn .mode-desc{color:rgba(0,255,136,0.45);font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:0.1em;}
+
+#adminError{
+  color:var(--r);font-size:0.62rem;letter-spacing:0.1em;
+  display:none;text-align:center;
+}
+
+/* ── TOURNAMENT LOBBY OVERLAY ── */
+#tournamentLobbyOverlay{
+  display:none;
+  position:fixed;inset:0;z-index:1500;
+  background:rgba(7,13,10,0.95);
+  align-items:center;justify-content:center;flex-direction:column;gap:28px;
+  backdrop-filter:blur(8px);
+}
+#tournamentLobbyOverlay.open{display:flex;}
+
+.tlobby-title{
+  font-family:'Press Start 2P',monospace;
+  font-size:clamp(1.2rem,3.5vw,2.2rem);
+  color:var(--y);
+  text-shadow:0 0 30px rgba(255,221,0,0.6);
+  text-align:center;line-height:1.6;
+  animation:yellowglow 2s ease-in-out infinite;
+}
+@keyframes yellowglow{
+  0%,100%{text-shadow:0 0 20px rgba(255,221,0,0.5)}
+  50%{text-shadow:0 0 50px rgba(255,221,0,0.9),0 0 100px rgba(255,221,0,0.3)}
+}
+.tlobby-mode{
+  font-family:'Press Start 2P',monospace;font-size:0.8rem;
+  color:var(--g);letter-spacing:0.15em;text-align:center;
+  background:rgba(0,255,136,0.06);border:1px solid var(--border);
+  padding:12px 24px;
+}
+.tlobby-timer{
+  font-family:'Press Start 2P',monospace;
+  font-size:clamp(2rem,6vw,4rem);
+  color:#fff;
+  text-shadow:0 0 40px rgba(255,255,255,0.4);
+  letter-spacing:0.1em;
+}
+.tlobby-sub{
+  font-size:0.65rem;color:rgba(0,255,136,0.45);
+  letter-spacing:0.25em;text-transform:uppercase;text-align:center;
+}
+.tlobby-waiting{
+  font-size:0.7rem;color:rgba(0,255,136,0.35);
+  letter-spacing:0.2em;text-align:center;
+}
+
 /* ── GAME ── */
 #gameWrap{display:none;position:relative;width:100vw;height:100vh;overflow:hidden;}
-
 #gameCanvas{display:block;}
 
-/* HUD top */
 #hud{
   position:absolute;top:0;left:0;right:0;
   display:flex;justify-content:space-between;align-items:flex-start;
@@ -121,7 +243,18 @@ body::after{
 }
 .lbl{color:rgba(0,255,136,0.45);font-size:0.58rem;letter-spacing:0.2em;text-transform:uppercase;}
 
-/* Leaderboard */
+/* Tournament timer HUD */
+#tournamentHUD{
+  display:none;
+  position:absolute;top:10px;left:50%;transform:translateX(-50%);
+  background:rgba(7,13,10,0.9);border:1px solid var(--y);
+  padding:8px 20px;text-align:center;pointer-events:none;
+  z-index:10;
+}
+#tournamentHUD .t-label{font-size:0.55rem;color:rgba(255,221,0,0.6);letter-spacing:0.2em;}
+#tournamentHUD .t-time{font-family:'Press Start 2P',monospace;font-size:1rem;color:var(--y);margin-top:2px;}
+#tournamentHUD .t-mode{font-size:0.55rem;color:rgba(255,221,0,0.4);margin-top:2px;letter-spacing:0.15em;}
+
 #board{
   position:absolute;top:10px;right:14px;
   background:var(--panel);border:1px solid var(--border);
@@ -134,7 +267,6 @@ body::after{
 .bscore{font-family:'Press Start 2P',monospace;font-size:0.55rem;color:var(--y);}
 .bme{color:#fff!important;}
 
-/* Dead overlay */
 #deadOverlay{
   display:none;position:absolute;inset:0;
   background:rgba(7,13,10,0.82);
@@ -148,15 +280,17 @@ body::after{
 }
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
 #deadOverlay p{font-size:0.7rem;color:rgba(0,255,136,0.6);letter-spacing:0.15em;}
+#deadOverlay .tournament-dead-msg{
+  font-size:0.62rem;color:rgba(255,221,0,0.6);letter-spacing:0.1em;
+  text-align:center;max-width:280px;margin-top:4px;
+}
 
-/* Minimap */
 #minimap{
   position:absolute;bottom:14px;left:14px;
   border:1px solid var(--border);background:rgba(7,13,10,0.8);
   pointer-events:none;image-rendering:pixelated;
 }
 
-/* kill feed */
 #killfeed{
   position:absolute;bottom:14px;right:14px;
   display:flex;flex-direction:column;gap:4px;
@@ -168,6 +302,57 @@ body::after{
   animation:fadeout 3s forwards;
 }
 @keyframes fadeout{0%,70%{opacity:1}100%{opacity:0}}
+
+/* ── TOURNAMENT WINNER OVERLAY ── */
+#winnerOverlay{
+  display:none;
+  position:fixed;inset:0;z-index:3000;
+  background:rgba(7,13,10,0.93);
+  align-items:center;justify-content:center;flex-direction:column;gap:24px;
+  backdrop-filter:blur(10px);
+}
+#winnerOverlay.open{display:flex;}
+
+.winner-trophy{font-size:5rem;animation:bounce 0.6s ease-in-out infinite alternate;}
+@keyframes bounce{from{transform:scale(1) translateY(0)}to{transform:scale(1.1) translateY(-10px)}}
+
+.winner-title{
+  font-family:'Press Start 2P',monospace;font-size:0.75rem;
+  color:rgba(255,221,0,0.6);letter-spacing:0.3em;text-transform:uppercase;
+}
+.winner-name{
+  font-family:'Press Start 2P',monospace;
+  font-size:clamp(1.5rem,5vw,3rem);
+  text-align:center;
+  text-shadow:0 0 40px currentColor, 0 0 80px currentColor;
+  animation:winnerglow 1s ease-in-out infinite;
+}
+@keyframes winnerglow{
+  0%,100%{filter:brightness(1)}
+  50%{filter:brightness(1.4)}
+}
+.winner-sub{
+  font-size:0.65rem;color:rgba(255,221,0,0.5);
+  letter-spacing:0.2em;text-align:center;
+}
+.winner-counter{
+  font-family:'Press Start 2P',monospace;font-size:0.6rem;
+  color:rgba(0,255,136,0.3);letter-spacing:0.2em;
+}
+
+/* confetti particles */
+.confetti-piece{
+  position:fixed;
+  width:8px;height:8px;
+  top:-10px;
+  animation:confetti-fall linear forwards;
+  pointer-events:none;
+  z-index:3001;
+}
+@keyframes confetti-fall{
+  0%{transform:translateY(0) rotate(0deg);opacity:1;}
+  100%{transform:translateY(110vh) rotate(720deg);opacity:0;}
+}
 </style>
 </head>
 <body>
@@ -180,6 +365,7 @@ body::after{
     <label>NOME SERPENTE</label>
     <input id="nameInput" maxlength="16" placeholder="INSERISCI NOME" autocomplete="off"/>
     <button id="joinBtn">▶ ENTRA IN PARTITA</button>
+    <button id="tournamentBtn">🏆 CREA TORNEO</button>
     <div class="ctrl">
       <div><span>↑ W</span> — Su</div>
       <div><span>↓ S</span> — Giù</div>
@@ -189,9 +375,57 @@ body::after{
   </div>
 </div>
 
+<!-- TOURNAMENT MODAL -->
+<div id="tournamentModal">
+  <div class="tmodal-box">
+    <h2>🏆 TORNEO</h2>
+
+    <!-- Step 1: codice admin -->
+    <div id="step-code" style="width:100%;display:flex;flex-direction:column;gap:16px;align-items:center;">
+      <p>Inserisci il codice admin<br>per creare un torneo</p>
+      <input class="tinput" id="adminCode" type="password" maxlength="6" placeholder="• • • • • •" autocomplete="off"/>
+      <div id="adminError">⚠ CODICE ERRATO</div>
+      <div class="tmodal-btns">
+        <button class="tbtn tbtn-cancel" id="tModalClose">ANNULLA</button>
+        <button class="tbtn tbtn-confirm" id="tCodeConfirm">CONFERMA</button>
+      </div>
+    </div>
+
+    <!-- Step 2: scegli modalità -->
+    <div id="modeSelect">
+      <p style="margin-bottom:4px;">Scegli il tipo di torneo:</p>
+      <button class="mode-btn" id="modeKills">
+        <span class="mode-title">💀 TORNEO KILL</span>
+        <span class="mode-desc">Vince chi totalizza più kill in 10 minuti</span>
+      </button>
+      <button class="mode-btn" id="modeLength">
+        <span class="mode-title">📏 TORNEO LUNGHEZZA</span>
+        <span class="mode-desc">Vince il serpente più lungo raggiunto in 10 minuti</span>
+      </button>
+      <button class="tbtn tbtn-cancel" id="tModeBack" style="width:100%;margin-top:4px;">← INDIETRO</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOURNAMENT LOBBY OVERLAY (waiting screen) -->
+<div id="tournamentLobbyOverlay">
+  <div class="tlobby-title">🏆 TORNEO IN<br>ARRIVO!</div>
+  <div class="tlobby-mode" id="tlobbyMode">MODALITÀ: —</div>
+  <div class="tlobby-timer" id="tlobbyTimer">05:00</div>
+  <div class="tlobby-sub">LA PARTITA INIZIA TRA</div>
+  <div class="tlobby-waiting" id="tlobbyWaiting">In attesa dei giocatori...</div>
+</div>
+
 <!-- GAME -->
 <div id="gameWrap">
   <canvas id="gameCanvas"></canvas>
+
+  <!-- Tournament timer in-game -->
+  <div id="tournamentHUD">
+    <div class="t-label">TORNEO IN CORSO</div>
+    <div class="t-time" id="tHudTime">10:00</div>
+    <div class="t-mode" id="tHudMode"></div>
+  </div>
 
   <div id="hud">
     <div class="hpanel">
@@ -213,17 +447,27 @@ body::after{
   </div>
 
   <div id="board">
-    <h3>🏆 CLASSIFICA</h3>
+    <h3 id="boardTitle">🏆 CLASSIFICA</h3>
     <div id="boardRows"></div>
   </div>
 
   <div id="deadOverlay">
     <h2>HAI PERSO!</h2>
     <p id="deadTimer">RESPAWN TRA 3s</p>
+    <p class="tournament-dead-msg" id="deadTournamentMsg" style="display:none;"></p>
   </div>
 
   <canvas id="minimap" width="120" height="120"></canvas>
   <div id="killfeed"></div>
+</div>
+
+<!-- WINNER OVERLAY -->
+<div id="winnerOverlay">
+  <div class="winner-trophy">🏆</div>
+  <div class="winner-title">VINCITORE DEL TORNEO</div>
+  <div class="winner-name" id="winnerName">---</div>
+  <div class="winner-sub" id="winnerSub">ha dominato il torneo!</div>
+  <div class="winner-counter" id="winnerCounter">ritorno al gioco normale tra 15s...</div>
 </div>
 
 <script>
@@ -235,6 +479,7 @@ let myId = null, ws = null;
 let gameState = null;
 let prevState = null;
 let killFeedItems = [];
+let tournamentInfo = { phase: 'normal', mode: null, lobbyEndsAt: 0, gameEndsAt: 0 };
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -248,6 +493,146 @@ function resize() {
 }
 resize();
 window.addEventListener('resize', resize);
+
+// ──────────────────────────────────────────────────────────────
+//  TOURNAMENT MODAL
+// ──────────────────────────────────────────────────────────────
+const tournamentModal = document.getElementById('tournamentModal');
+const adminCodeInput = document.getElementById('adminCode');
+const adminError = document.getElementById('adminError');
+const stepCode = document.getElementById('step-code');
+const modeSelectDiv = document.getElementById('modeSelect');
+
+document.getElementById('tournamentBtn').addEventListener('click', () => {
+  adminCodeInput.value = '';
+  adminError.style.display = 'none';
+  stepCode.style.display = 'flex';
+  modeSelectDiv.style.display = 'none';
+  tournamentModal.classList.add('open');
+  setTimeout(() => adminCodeInput.focus(), 100);
+});
+
+document.getElementById('tModalClose').addEventListener('click', () => {
+  tournamentModal.classList.remove('open');
+});
+
+document.getElementById('tCodeConfirm').addEventListener('click', verifyCode);
+adminCodeInput.addEventListener('keydown', e => { if (e.key === 'Enter') verifyCode(); });
+
+function verifyCode() {
+  const code = adminCodeInput.value.trim();
+  if (code !== '479572') {
+    adminError.style.display = 'block';
+    adminCodeInput.value = '';
+    adminCodeInput.focus();
+    setTimeout(() => { adminError.style.display = 'none'; }, 2000);
+    return;
+  }
+  // Code OK — show mode select
+  stepCode.style.display = 'none';
+  modeSelectDiv.style.display = 'flex';
+}
+
+document.getElementById('tModeBack').addEventListener('click', () => {
+  modeSelectDiv.style.display = 'none';
+  stepCode.style.display = 'flex';
+});
+
+document.getElementById('modeKills').addEventListener('click', () => startTournament('kills'));
+document.getElementById('modeLength').addEventListener('click', () => startTournament('length'));
+
+function startTournament(mode) {
+  tournamentModal.classList.remove('open');
+  // Connect a temp WS or use existing
+  if (ws && ws.readyState === 1) {
+    ws.send(JSON.stringify({ type: 'admin_start_tournament', code: '479572', mode }));
+  } else {
+    // Open a temp connection to send the admin command
+    const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+    const tempWs = new WebSocket(`${proto}://${location.host}`);
+    tempWs.onopen = () => {
+      tempWs.send(JSON.stringify({ type: 'join', name: '_admin_' }));
+      setTimeout(() => {
+        tempWs.send(JSON.stringify({ type: 'admin_start_tournament', code: '479572', mode }));
+        setTimeout(() => tempWs.close(), 500);
+      }, 200);
+    };
+  }
+}
+
+// ──────────────────────────────────────────────────────────────
+//  TOURNAMENT LOBBY OVERLAY
+// ──────────────────────────────────────────────────────────────
+const lobbyOverlay = document.getElementById('tournamentLobbyOverlay');
+let lobbyTimerInterval = null;
+
+function showTournamentLobby(info) {
+  lobbyOverlay.classList.add('open');
+  const modeLabel = info.mode === 'kills' ? '💀 TORNEO KILL' : '📏 TORNEO LUNGHEZZA';
+  document.getElementById('tlobbyMode').textContent = 'MODALITÀ: ' + modeLabel;
+
+  if (lobbyTimerInterval) clearInterval(lobbyTimerInterval);
+  lobbyTimerInterval = setInterval(() => {
+    const remaining = Math.max(0, info.lobbyEndsAt - Date.now());
+    const m = Math.floor(remaining / 60000);
+    const s = Math.floor((remaining % 60000) / 1000);
+    document.getElementById('tlobbyTimer').textContent =
+      String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+    if (remaining <= 0) {
+      clearInterval(lobbyTimerInterval);
+    }
+  }, 250);
+}
+
+function hideTournamentLobby() {
+  lobbyOverlay.classList.remove('open');
+  if (lobbyTimerInterval) clearInterval(lobbyTimerInterval);
+}
+
+// ──────────────────────────────────────────────────────────────
+//  WINNER OVERLAY
+// ──────────────────────────────────────────────────────────────
+function showWinner(winnerName, winnerColor, mode) {
+  const overlay = document.getElementById('winnerOverlay');
+  const nameEl = document.getElementById('winnerName');
+  nameEl.textContent = (winnerName || '???').toUpperCase();
+  nameEl.style.color = winnerColor || '#ffdd00';
+  const subEl = document.getElementById('winnerSub');
+  subEl.textContent = mode === 'kills'
+    ? 'ha eliminato più nemici di tutti! 💀'
+    : 'era il serpente più lungo di tutti! 📏';
+  overlay.classList.add('open');
+
+  spawnConfetti();
+
+  let countdown = 15;
+  const counter = document.getElementById('winnerCounter');
+  const t = setInterval(() => {
+    countdown--;
+    counter.textContent = `ritorno al gioco normale tra ${countdown}s...`;
+    if (countdown <= 0) {
+      clearInterval(t);
+      overlay.classList.remove('open');
+    }
+  }, 1000);
+}
+
+function spawnConfetti() {
+  const colors = ['#ffdd00','#00ff88','#ff4466','#44aaff','#ff8800','#cc44ff'];
+  for (let i = 0; i < 80; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    el.style.left = Math.random() * 100 + 'vw';
+    el.style.background = colors[Math.floor(Math.random() * colors.length)];
+    el.style.width = (6 + Math.random() * 8) + 'px';
+    el.style.height = (6 + Math.random() * 8) + 'px';
+    el.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+    el.style.animationDuration = (2 + Math.random() * 3) + 's';
+    el.style.animationDelay = Math.random() * 2 + 's';
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 6000);
+  }
+}
 
 // ──────────────────────────────────────────────────────────────
 //  CONTROLS
@@ -268,7 +653,6 @@ window.addEventListener('keydown', e => {
   }
 });
 
-// Swipe mobile
 let touchStart = null;
 window.addEventListener('touchstart', e => { touchStart = e.touches[0]; }, {passive:true});
 window.addEventListener('touchend', e => {
@@ -297,6 +681,7 @@ function joinGame() {
 
   ws.onmessage = e => {
     const msg = JSON.parse(e.data);
+
     if (msg.type === 'init') {
       myId = msg.id;
       GRID = msg.grid;
@@ -304,17 +689,56 @@ function joinGame() {
       document.getElementById('lobby').style.display = 'none';
       document.getElementById('gameWrap').style.display = 'block';
       requestAnimationFrame(loop);
+
+      // Handle tournament state on join
+      if (msg.tournament) {
+        tournamentInfo = msg.tournament;
+        if (msg.tournament.phase === 'lobby') {
+          showTournamentLobby(msg.tournament);
+        }
+      }
     }
+
     if (msg.type === 'state') {
       detectKills(prevState, msg);
       prevState = gameState;
       gameState = msg;
+      if (msg.tournament) {
+        tournamentInfo = msg.tournament;
+      }
+    }
+
+    if (msg.type === 'tournament_lobby') {
+      tournamentInfo = { phase: 'lobby', mode: msg.mode, lobbyEndsAt: msg.endsAt, gameEndsAt: 0 };
+      showTournamentLobby(tournamentInfo);
+    }
+
+    if (msg.type === 'tournament_start') {
+      tournamentInfo = { phase: 'active', mode: msg.mode, lobbyEndsAt: 0, gameEndsAt: msg.endsAt };
+      hideTournamentLobby();
+      // Show game HUD
+      const thud = document.getElementById('tournamentHUD');
+      thud.style.display = 'block';
+      document.getElementById('tHudMode').textContent =
+        msg.mode === 'kills' ? '💀 MODALITÀ KILL' : '📏 MODALITÀ LUNGHEZZA';
+    }
+
+    if (msg.type === 'tournament_end') {
+      tournamentInfo = { phase: 'ended' };
+      document.getElementById('tournamentHUD').style.display = 'none';
+      showWinner(msg.winnerName, msg.winnerColor, msg.mode);
+    }
+
+    if (msg.type === 'tournament_reset') {
+      tournamentInfo = { phase: 'normal' };
+      document.getElementById('tournamentHUD').style.display = 'none';
     }
   };
 
   ws.onclose = () => {
     document.getElementById('gameWrap').style.display = 'none';
     document.getElementById('lobby').style.display = 'flex';
+    hideTournamentLobby();
     gameState = null; prevState = null; myId = null;
   };
 }
@@ -328,8 +752,6 @@ function detectKills(prev, curr) {
     const pp = prev.players.find(p => p.id === cp.id);
     if (!pp) continue;
     if (cp.kills > pp.kills) {
-      // trovato un nuovo kill — chi ha ucciso chi?
-      // cerchiamo chi è morto nel frame corrente
       for (const cp2 of curr.players) {
         const pp2 = prev.players.find(p => p.id === cp2.id);
         if (!pp2) continue;
@@ -351,7 +773,7 @@ function addKillFeed(killer, kColor, victim, vColor) {
 }
 
 // ──────────────────────────────────────────────────────────────
-//  CAMERA — centra sul serpente del giocatore
+//  CAMERA
 // ──────────────────────────────────────────────────────────────
 let camX = 0, camY = 0;
 let camTargetX = 0, camTargetY = 0;
@@ -368,23 +790,31 @@ function updateCamera(me) {
 }
 
 // ──────────────────────────────────────────────────────────────
+//  TOURNAMENT HUD UPDATE
+// ──────────────────────────────────────────────────────────────
+function updateTournamentHUD() {
+  if (tournamentInfo.phase !== 'active') return;
+  const remaining = Math.max(0, tournamentInfo.gameEndsAt - Date.now());
+  const m = Math.floor(remaining / 60000);
+  const s = Math.floor((remaining % 60000) / 1000);
+  document.getElementById('tHudTime').textContent =
+    String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+}
+
+// ──────────────────────────────────────────────────────────────
 //  DRAW
 // ──────────────────────────────────────────────────────────────
-// Interpolazione tick
-let lastTickTime = 0;
-let interpT = 0;
-
 function loop(ts) {
   requestAnimationFrame(loop);
   if (!gameState) return;
 
   const me = gameState.players.find(p => p.id === myId);
   if (me) updateCamera(me);
+  updateTournamentHUD();
 
   const W = GRID * CELL;
   const H = GRID * CELL;
 
-  // BG
   ctx.fillStyle = '#070d0a';
   ctx.fillRect(0,0,canvas.width,canvas.height);
 
@@ -402,7 +832,9 @@ function loop(ts) {
   }
 
   // Border
-  ctx.strokeStyle = 'rgba(0,255,136,0.4)';
+  ctx.strokeStyle = tournamentInfo.phase === 'active'
+    ? 'rgba(255,221,0,0.6)'
+    : 'rgba(0,255,136,0.4)';
   ctx.lineWidth = 3;
   ctx.strokeRect(0,0,W,H);
 
@@ -423,7 +855,6 @@ function loop(ts) {
     ctx.shadowColor = isSpecial ? '#ffdd00' : '#00ff88';
 
     if (isSpecial) {
-      // stella
       ctx.beginPath();
       for (let i = 0; i < 5; i++) {
         const a = (i * 4 * Math.PI / 5) - Math.PI/2;
@@ -443,7 +874,7 @@ function loop(ts) {
     ctx.restore();
   }
 
-  // Serpenti
+  // Snakes
   for (const p of gameState.players) {
     if (!p.alive || !p.body || p.body.length === 0) continue;
     const isMe = p.id === myId;
@@ -454,25 +885,20 @@ function loop(ts) {
       const cy2 = seg.y * CELL;
       const pct = i / p.body.length;
 
-      // Colore: più brillante verso la testa
       const alpha = isMe ? 1 : 0.85;
       ctx.save();
 
       if (i === 0) {
-        // TESTA
         ctx.shadowBlur = 18; ctx.shadowColor = p.color;
         ctx.fillStyle = p.color;
-        // arrotondata
         const r = CELL * 0.47;
         ctx.beginPath();
         ctx.roundRect(cx2 + 1, cy2 + 1, CELL-2, CELL-2, r);
         ctx.fill();
 
-        // Occhi
         ctx.shadowBlur = 0;
         const eyeOff = 4, eyeR = 2.5;
         ctx.fillStyle = '#000';
-        // occhio in base alla direzione
         const dx = p.dir.x, dy = p.dir.y;
         const ex1 = cx2 + CELL/2 + dy*eyeOff + dx*(CELL/3);
         const ey1 = cy2 + CELL/2 - dx*eyeOff + dy*(CELL/3);
@@ -484,7 +910,6 @@ function loop(ts) {
         ctx.beginPath(); ctx.arc(ex1-0.8, ey1-0.8, 1, 0, Math.PI*2); ctx.fill();
         ctx.beginPath(); ctx.arc(ex2-0.8, ey2-0.8, 1, 0, Math.PI*2); ctx.fill();
 
-        // Nome sopra la testa
         ctx.font = isMe ? 'bold 11px "Share Tech Mono"' : '10px "Share Tech Mono"';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'bottom';
@@ -493,10 +918,8 @@ function loop(ts) {
         ctx.fillText(p.name.toUpperCase(), cx2 + CELL/2, cy2 - 4);
 
       } else {
-        // CORPO — sfuma verso la coda
         const brightness = 0.4 + 0.6 * (1 - pct);
         ctx.shadowBlur = 4; ctx.shadowColor = p.color;
-        // parse colore hex e schiarisci
         ctx.fillStyle = hexAlpha(p.color, brightness * alpha);
         const pad = 1 + pct * 2;
         ctx.beginPath();
@@ -507,13 +930,7 @@ function loop(ts) {
     }
   }
 
-  // Serpenti morti — effetto dissolvenza
-  for (const p of gameState.players) {
-    if (p.alive) continue;
-    // niente da disegnare, già spariti
-  }
-
-  ctx.restore(); // fine world
+  ctx.restore();
 
   // ── HUD ─────────────────────────────────────────────────────
   if (me) {
@@ -525,22 +942,52 @@ function loop(ts) {
 
   // Dead overlay
   const dead = document.getElementById('deadOverlay');
+  const deadTournamentMsg = document.getElementById('deadTournamentMsg');
   if (me && !me.alive) {
     dead.style.display = 'flex';
-    const s = Math.max(0, Math.ceil((me.respawnAt - Date.now()) / 1000));
-    document.getElementById('deadTimer').textContent = `RESPAWN TRA ${s}s`;
+    if (tournamentInfo.phase === 'active') {
+      document.getElementById('deadTimer').textContent = 'SEI ELIMINATO!';
+      deadTournamentMsg.style.display = 'block';
+      deadTournamentMsg.textContent = 'Nel torneo non c\'è respawn. Attendi la fine!';
+    } else {
+      const s = Math.max(0, Math.ceil((me.respawnAt - Date.now()) / 1000));
+      document.getElementById('deadTimer').textContent = `RESPAWN TRA ${s}s`;
+      deadTournamentMsg.style.display = 'none';
+    }
   } else {
     dead.style.display = 'none';
   }
 
-  // Leaderboard
-  const sorted = [...gameState.players].sort((a,b) => (b.score||0) - (a.score||0)).slice(0,8);
-  document.getElementById('boardRows').innerHTML = sorted.map(p => `
-    <div class="brow">
-      <span class="bname ${p.id===myId?'bme':''}" style="color:${p.color}">${p.name.toUpperCase()}</span>
-      <span class="bscore">${p.score||0}pt · ${p.kills||0}K</span>
-    </div>
-  `).join('');
+  // Leaderboard — during tournament show tournament-relevant stat
+  const isTournament = tournamentInfo.phase === 'active';
+  const boardTitle = document.getElementById('boardTitle');
+  if (isTournament) {
+    boardTitle.textContent = tournamentInfo.mode === 'kills' ? '🏆 TORNEO KILL' : '🏆 TORNEO LUNGHEZZA';
+  } else {
+    boardTitle.textContent = '🏆 CLASSIFICA';
+  }
+
+  let sorted;
+  if (isTournament && tournamentInfo.mode === 'kills') {
+    sorted = [...gameState.players].sort((a,b) => (b.tournamentKills||0) - (a.tournamentKills||0)).slice(0,8);
+  } else if (isTournament && tournamentInfo.mode === 'length') {
+    sorted = [...gameState.players].sort((a,b) => (b.tournamentMaxLength||0) - (a.tournamentMaxLength||0)).slice(0,8);
+  } else {
+    sorted = [...gameState.players].sort((a,b) => (b.score||0) - (a.score||0)).slice(0,8);
+  }
+
+  document.getElementById('boardRows').innerHTML = sorted.map(p => {
+    let stat;
+    if (isTournament && tournamentInfo.mode === 'kills') stat = `${p.tournamentKills||0}K`;
+    else if (isTournament && tournamentInfo.mode === 'length') stat = `${p.tournamentMaxLength||3}L`;
+    else stat = `${p.score||0}pt · ${p.kills||0}K`;
+    return `
+      <div class="brow">
+        <span class="bname ${p.id===myId?'bme':''}" style="color:${p.color}">${p.name.toUpperCase()}</span>
+        <span class="bscore">${stat}</span>
+      </div>
+    `;
+  }).join('');
 
   // Minimap
   const mw = minimap.width, mh = minimap.height;
@@ -559,7 +1006,6 @@ function loop(ts) {
       mCtx.fillRect(seg.x*sx, seg.y*sy, sx, sy);
     }
   }
-  // viewport rect
   mCtx.strokeStyle = 'rgba(0,255,136,0.4)';
   mCtx.lineWidth=1;
   mCtx.strokeRect(camX/CELL*sx, camY/CELL*sy, canvas.width/CELL*sx, canvas.height/CELL*sy);
